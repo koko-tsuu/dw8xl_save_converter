@@ -14,6 +14,42 @@ from helpers import build_encrypted_file, build_decrypted_file, build_encrypted_
     # PSVITA: unencrypted, B7F44
 
 
+def identify_console_type(filename):
+    try:
+        # Checks the file offset to identify the console type
+        with open(filename, 'rb') as f:
+            f.seek(0, os.SEEK_END)  # Move to the end of the file
+            last_offset = f.tell() 
+
+        # +1 for actual EOF
+        if (last_offset == 0xB7F48 + 0x1):
+            return "PC"
+        
+        # either PS3 or PSV
+        elif (last_offset == 0xB7F44 + 0x1):
+
+            # PS3's magic number is encrypted, PSV's not
+            magic_num = [0xF0, 0x02, 0x10, 0x13, 0x09]
+
+            with open(filename, 'rb') as f:
+                data = bytearray(f.read())
+
+            for i in range(5):
+                if (data[0x0+i] != magic_num[i]):
+                    return "PS3"
+                    
+            return "PSV"
+        
+        elif (last_offset == 0xD0F44 + 0x1):
+            return "PS4"
+        
+        return ""
+        
+    except: 
+        return ""
+        
+
+
 def convert(input_path, output_path, input_type, output_type):
     with open(input_path, "rb") as f:
         data = bytearray(f.read())

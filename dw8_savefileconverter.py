@@ -36,7 +36,10 @@ def browse_output():
         output_entry.insert(0, path)
 
 
-    
+def identify_input_console(*args):
+    result = main_functions.identify_console_type(input_entry.get())
+    input_type.set(result)
+
 
 def convert():
     input_path = input_entry.get()
@@ -106,7 +109,10 @@ root.columnconfigure(2, weight=1)
 # ---- Input File ----
 tk.Label(root, text="Input:").grid(row=0, column=0, padx=PADX_LEFT_SIZE, pady=(30, 10), sticky="w")
 
-input_entry = tk.Entry(root, width=75)
+input_var = tk.StringVar()
+input_var.trace_add("write", identify_input_console)
+
+input_entry = tk.Entry(root, width=75, textvariable=input_var)
 input_entry.grid(row=0, column=0, pady=(20, 0), padx=(100, 0), sticky="w")
 input_entry.drop_target_register(DND_FILES)
 input_entry.dnd_bind("<<Drop>>", drop_input)
