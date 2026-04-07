@@ -53,7 +53,7 @@ def convert():
         messagebox.showerror("Error", "Please select both input and output types.")
         return
     
-    if in_type is out_type:
+    if in_type == out_type:
         messagebox.showerror("Error", "Input and output types are the same.")
         return
     
