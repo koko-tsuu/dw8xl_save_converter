@@ -1,4 +1,5 @@
-from helpers import build_encrypted_file, build_decrypted_file, build_encrypted_file_onlystage4, build_decrypted_file_onlystage4, prepend_4_zero_bytes, remove_first_4_bytes, pad_to_size, truncate
+import os
+from helpers import build_encrypted_file, build_decrypted_file, build_encrypted_file_onlystage4, build_decrypted_file_onlystage4, prepend_4_zero_bytes, remove_first_4_bytes, pad_to_size, truncate, set_magic_number
 
 
 
@@ -25,7 +26,7 @@ def convert(input_path, output_path, input_type, output_type):
             data = PCtoPS4(data)
         
         elif output_type == "PSV":
-            data = PCtoPSVITA(data)
+            data = PCtoPSV(data)
 
     elif input_type == "PS3":
         if output_type == "PC":
@@ -66,6 +67,8 @@ def PCtoPS3(data):
     
     data = build_decrypted_file(data)
 
+    data = set_magic_number(data, True)
+
     data = build_encrypted_file_onlystage4(data)
 
     data = remove_first_4_bytes(data)
@@ -81,6 +84,8 @@ def PCtoPS4(data):
     # PC save file is encrypted, decrypt it first
     data = build_decrypted_file(data)
 
+    data = set_magic_number(data, True)
+
     # first 4 bytes are unnecessary + padding
     data = remove_first_4_bytes(data)
     data = pad_to_size(data)
@@ -89,12 +94,14 @@ def PCtoPS4(data):
 
  
     
-def PCtoPSVITA(data):
+def PCtoPSV(data):
     # PC: addtl encryption, B7F48
     # PSVITA: unencrypted, B7F44
 
     # PC save file is encrypted, decrypt it first
     data = build_decrypted_file(data)
+
+    data = set_magic_number(data, True)
 
     # first 4 bytes are unnecessary for PSVITA
     data = remove_first_4_bytes(data)
@@ -109,6 +116,8 @@ def PS3toPC(data):
     
     # append
     data = prepend_4_zero_bytes(data)
+
+    data = set_magic_number(data, True)
 
     # decrypt
     data = build_decrypted_file_onlystage4(data)
@@ -125,6 +134,8 @@ def PS3toPS4(data):
 
     data = prepend_4_zero_bytes(data)
 
+    data = set_magic_number(data, True)
+
     data = build_decrypted_file_onlystage4(data)
 
     data = remove_first_4_bytes(data)
@@ -138,6 +149,7 @@ def PS3toPSV(data):
     # PS3: encrypted, B7F44
     # PSVITA: unencrypted, B7F44
     data = prepend_4_zero_bytes(data)
+    data = set_magic_number(data, True)
     data = build_decrypted_file_onlystage4(data)
     data = remove_first_4_bytes(data)
 
@@ -153,6 +165,7 @@ def PS4toPC(data):
     # truncate
     data = truncate(data, 0xB7F45)
     data = prepend_4_zero_bytes(data)
+    data = set_magic_number(data, True)
 
     # encrypt
     data = build_encrypted_file(data)
@@ -164,6 +177,7 @@ def PS4toPS3(data):
     # PS3: encrypted, B7F44
     data = truncate(data, 0xB7F45)
     data = prepend_4_zero_bytes(data)
+    data = set_magic_number(data, True)
     data = build_encrypted_file_onlystage4(data)
     data = remove_first_4_bytes(data)
 
@@ -173,7 +187,7 @@ def PS4toPS3(data):
 def PS4toPSV(data):
     # PS4: unencrypted, D0F44
     # PSVITA: unencrypted, B7F44
-
+    data = set_magic_number(data, False)
     data = truncate(data, 0xB7F45)
 
     return data
@@ -189,6 +203,8 @@ def PSVtoPC(data):
     # Append 4 bytes
     data = prepend_4_zero_bytes(data)
 
+    data = set_magic_number(data, True)
+
     # now we need to encrypt it
     data = build_encrypted_file(data)
 
@@ -199,6 +215,7 @@ def PSVtoPS3(data):
     # PSVITA: unencrypted, B7F44
     # PS3: encrypted, B7F44
     data = prepend_4_zero_bytes(data)
+    data = set_magic_number(data, True)
     data = build_encrypted_file_onlystage4(data)
     data = remove_first_4_bytes(data)
 
@@ -210,6 +227,7 @@ def PSVtoPS4(data):
  
     # PSVITA's file is already decrypted
     # data only needs to be appended
+    data = set_magic_number(data, False)
     data = pad_to_size(data)
 
     return data

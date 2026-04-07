@@ -313,3 +313,27 @@ def build_encrypted_file_onlystage4(data):
 
 
     return data
+
+
+# -----------------------------
+# When running PC mods, there's a chance that the magic number is modified.
+# If modified, game (for other) will think the save file is corrupted when it isn't.
+# MAGIC NUMBER: F0 02 10 13 09 
+#
+# Must be run against unencrypted files.
+# -----------------------------
+
+def set_magic_number(data, toOffset):
+    magic_num = [0xF0, 0x02, 0x10, 0x13, 0x09]
+    offset = 0x0
+
+    if toOffset:
+        offset = 0x4
+
+    for i in range(5):
+        data[0x0+offset+i] = magic_num[i]
+
+    return data
+
+
+
